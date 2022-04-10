@@ -451,21 +451,6 @@ RUN \
         make install && \
         rm -rf ${DIR}
 
-## libzmq https://github.com/zeromq/libzmq/
-RUN \
-        DIR=/tmp/libzmq && \
-        mkdir -p ${DIR} && \
-        cd ${DIR} && \
-        curl -sLO https://github.com/zeromq/libzmq/archive/v${LIBZMQ_VERSION}.tar.gz && \
-        echo ${LIBZMQ_SHA256SUM} | sha256sum --check && \
-        tar -xz --strip-components=1 -f v${LIBZMQ_VERSION}.tar.gz && \
-        ./autogen.sh && \
-        ./configure --prefix="${PREFIX}" && \
-        make && \
-        make check && \
-        make install && \
-        rm -rf ${DIR}
-
 ## libsrt https://github.com/Haivision/srt
 RUN \
         DIR=/tmp/srt && \
@@ -548,7 +533,6 @@ RUN  \
         --enable-libx265 \
         --enable-libxcb \
         --enable-libxvid \
-        --enable-libzmq \
         --enable-nonfree \
         --enable-openssl \
         --enable-postproc \
@@ -563,7 +547,6 @@ RUN  \
         make clean && \
         make && \
         make install && \
-        make tools/zmqsend && cp tools/zmqsend ${PREFIX}/bin/ && \
         make distclean && \
         hash -r && \
         cd tools && \
