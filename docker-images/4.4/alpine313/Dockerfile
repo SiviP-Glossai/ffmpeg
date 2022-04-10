@@ -497,7 +497,15 @@ RUN  \
         ./configure     --disable-debug  --disable-doc    --disable-ffplay   --enable-shared --enable-gpl  --extra-libs=-ldl && \
         make ;  make install
 
-
+## gltransitions
+RUN \
+        DIR=/tmp/gltransitions && \
+        mkdir -p ${DIR} && \
+        cd ${DIR} && \
+        git clone https://github.com/transitive-bullshit/ffmpeg-gl-transition.git && \
+        apk add --no-cache --update glew glew-dev glfw-dev mesa-dev && \
+        grep -v "define GL_TRANSITION_USING_EGL" ${DIR}/ffmpeg-gl-transition/vf_gltransition.c > /tmp/ffmpeg/libavfilter/vf_gltransition.c && \
+        cd /tmp/ffmpeg && git apply ${DIR}/ffmpeg-gl-transition/ffmpeg.diff
 
 
 
@@ -510,6 +518,8 @@ RUN  \
         --disable-ffplay \
         --enable-avresample \
         --enable-fontconfig \
+        --enable-filter=gltransition \
+        --enable-opengl \
         --enable-gpl \
         --enable-libaom \
         --enable-libaribb24 \
@@ -543,6 +553,8 @@ RUN  \
         --extra-ldflags="-L${PREFIX}/lib" \
         --extra-libs=-ldl \
         --extra-libs=-lpthread \
+        --extra-libs=-lGLEW \
+        --extra-libs=-lglfw \
         --prefix="${PREFIX}" && \
         make clean && \
         make && \
@@ -572,6 +584,7 @@ LABEL       org.opencontainers.image.authors="julien@rottenberg.info" \
             org.opencontainers.image.source=https://github.com/jrottenberg/ffmpeg
 
 ENV         LD_LIBRARY_PATH=/usr/local/lib:/usr/local/lib64
+RUN         apk add --no-cache --update xvfb glew glew-dev glfw-dev mesa-dev
 
 CMD         ["--help"]
 ENTRYPOINT  ["ffmpeg"]
